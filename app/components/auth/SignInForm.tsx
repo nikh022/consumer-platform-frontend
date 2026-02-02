@@ -58,7 +58,7 @@ export default function SignInForm() {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-200"
+          className="w-full border rounded-md px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-green-200"
           required
         />
       </div>
@@ -71,7 +71,7 @@ export default function SignInForm() {
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-200"
+          className="w-full border rounded-md px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-green-200"
           required
         />
       </div>
