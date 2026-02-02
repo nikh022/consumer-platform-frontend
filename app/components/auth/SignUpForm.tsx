@@ -54,7 +54,7 @@ export default function SignUpForm() {
       }
 
       setSuccess("Account created successfully. Redirecting...");
-      setTimeout(() => router.push("/signin"), 1500);
+      setTimeout(() => router.push("/"), 1500);
     } catch (err) {
       setError("Network error");
     } finally {
@@ -74,7 +74,7 @@ export default function SignUpForm() {
         <input
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
-          className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-200"
+          className="w-full border rounded-md px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-green-200"
           required
         />
       </div>
@@ -87,7 +87,7 @@ export default function SignUpForm() {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-200"
+          className="w-full border rounded-md px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-green-200"
           required
         />
       </div>
@@ -100,7 +100,7 @@ export default function SignUpForm() {
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-200"
+          className="w-full border rounded-md px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-green-200"
           required
         />
         <div className="text-xs text-gray-500 mt-1">
@@ -112,7 +112,7 @@ export default function SignUpForm() {
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Role
         </label>
-        <div className="flex gap-4">
+        <div className="flex gap-4 text-black">
           <label className="flex items-center gap-2">
             <input
               type="radio"
