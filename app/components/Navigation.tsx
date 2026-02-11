@@ -39,6 +39,12 @@ export default function Navigation() {
         </div>
         <div className="space-x-4">
           <Link
+            href="/dashboard"
+            className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-green-600 transition"
+          >
+            Dashboard
+          </Link>
+          <Link
             href="/signin"
             className="px-6 py-2 text-green-600 border border-green-600 rounded-lg hover:bg-green-50 dark:hover:bg-slate-700 transition"
           >
