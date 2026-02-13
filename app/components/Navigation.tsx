@@ -32,6 +32,12 @@ export default function Navigation() {
 
         <div className="flex items-center gap-3">
           <Link
+            href="/dashboard"
+            className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-green-600 transition"
+          >
+            Dashboard
+          </Link>
+          <Link
             href="/signin"
             className="px-4 py-2 text-sm font-bold text-gray-600 dark:text-gray-300 hover:text-green-600 transition"
           >
