@@ -20,20 +20,14 @@ export default function SignInForm() {
     }
 
     setLoading(true);
-
     try {
-      const base = process.env.NEXT_PUBLIC_API_URL || "";
-      const res = await fetch(`${base}/api/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+      const { postJSON } = await import("./api");
+      const { res, json } = await postJSON("/api/auth/login", {
+        email,
+        password,
       });
-
-      const json = await res.json();
-
       if (!res.ok) {
         setError(json?.message || "Login failed");
-        setLoading(false);
         return;
       }
 
