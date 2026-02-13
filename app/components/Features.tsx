@@ -3,42 +3,38 @@
 const features = [
   {
     icon: "📍",
-    title: "Location-Based Discovery",
-    description:
-      "Find farmers near you by city and district. Browse their available products and connect directly with verified local producers.",
+    title: "Local Discovery",
+    desc: "Find farmers by city or district instantly.",
   },
   {
     icon: "💬",
-    title: "Direct Connection",
-    description:
-      "Connect instantly via WhatsApp or phone call. Negotiate directly with farmers for better deals and personalized service.",
+    title: "Instant Chat",
+    desc: "Negotiate deals directly via WhatsApp.",
   },
   {
-    icon: "✓",
-    title: "Verified Farmers",
-    description:
-      "All farmers are verified for authenticity. See their profiles, ratings, and product categories to make informed choices.",
+    icon: "🛡️",
+    title: "Verified Source",
+    desc: "All producers undergo identity verification.",
   },
 ];
 
 export default function Features() {
   return (
-    <section className="max-w-6xl mx-auto px-6 py-20">
-      <h2 className="text-4xl font-bold text-center mb-16 text-gray-900 dark:text-white">
-        Why Choose Us?
-      </h2>
-      <div className="grid md:grid-cols-3 gap-8">
-        {features.map((feature, index) => (
+    <section>
+      <div className="grid md:grid-cols-3 gap-6">
+        {features.map((f, i) => (
           <div
-            key={index}
-            className="bg-green-50 dark:bg-slate-800 rounded-lg p-8 shadow-md hover:shadow-lg transition border border-green-100"
+            key={i}
+            className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm transition-all hover:border-green-300"
           >
-            <div className="text-4xl mb-4">{feature.icon}</div>
-            <h3 className="text-2xl font-bold mb-4 text-green-800 dark:text-white">
-              {feature.title}
+            <div className="w-12 h-12 bg-gray-50 dark:bg-slate-800 rounded-xl flex items-center justify-center text-2xl mb-6">
+              {f.icon}
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+              {f.title}
             </h3>
-            <p className="text-gray-700 dark:text-gray-400">
-              {feature.description}
+            <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
+              {f.desc}
             </p>
           </div>
         ))}
