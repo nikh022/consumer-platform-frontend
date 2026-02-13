@@ -38,18 +38,15 @@ export default function SignUpForm() {
     setError(null);
 
     try {
-      const base = process.env.NEXT_PUBLIC_API_URL || "";
-      const res = await fetch(`${base}/api/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fullName, email, password, role }),
+      const { postJSON } = await import("./api");
+      const { res, json } = await postJSON("/api/auth/register", {
+        fullName,
+        email,
+        password,
+        role,
       });
-
-      const json = await res.json();
-
       if (!res.ok) {
         setError(json?.message || "Registration failed");
-        setLoading(false);
         return;
       }
 
