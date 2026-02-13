@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+// Types
 type FarmerProfile = {
   id: string;
   farmName?: string | null;
@@ -19,6 +20,7 @@ type UserProfile = {
   farmerProfile?: FarmerProfile | null;
 };
 
+// Helper Functions
 function getApiBase() {
   if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
   if (typeof window === "undefined") return "";
@@ -28,85 +30,33 @@ function getApiBase() {
 
 function Loading() {
   return (
-    <div className="p-8 flex items-center justify-center">
-      <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-green-600" />
-      <span className="ml-3 text-gray-600">Loading profile…</span>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+      <div className="animate-spin rounded-full h-12 w-12 border-4 border-green-100 border-t-green-600" />
+      <span className="mt-4 text-gray-500 font-medium animate-pulse">
+        Growing your dashboard...
+      </span>
     </div>
   );
 }
 
-function DashboardHeader({
-  user,
-  onLogout,
+function StatCard({
+  label,
+  value,
+  icon,
 }: {
-  user: UserProfile;
-  onLogout: () => void;
+  label: string;
+  value: string | number;
+  icon: string;
 }) {
   return (
-    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-      <div>
-        <h1 className="text-2xl font-bold">Welcome back, {user.fullName}</h1>
-        <p className="text-sm text-gray-600">
-          {user.email} • <span className="uppercase text-xs">{user.role}</span>
-        </p>
+    <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
+          {label}
+        </span>
+        <span className="text-xl">{icon}</span>
       </div>
-      <div className="flex items-center gap-3">
-        <button
-          onClick={onLogout}
-          className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-        >
-          Logout
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function ProfileCard({ user }: { user: UserProfile }) {
-  return (
-    <div className="bg-white shadow rounded p-6">
-      <h2 className="font-semibold text-lg mb-4">Your Profile</h2>
-      <div className="grid grid-cols-1 gap-2 text-sm text-gray-700">
-        <div>
-          <span className="font-medium">Full name:</span> {user.fullName}
-        </div>
-        <div>
-          <span className="font-medium">Email:</span> {user.email}
-        </div>
-        <div>
-          <span className="font-medium">Member since:</span>{" "}
-          {user.createdAt ?? "-"}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function FarmerCard({ farmer }: { farmer?: FarmerProfile | null }) {
-  if (!farmer) return null;
-  return (
-    <div className="bg-white shadow rounded p-6">
-      <h3 className="font-semibold mb-3">Farmer Profile</h3>
-      <div className="text-sm text-gray-700">
-        <div>
-          <strong>Farm:</strong> {farmer.farmName ?? "-"}
-        </div>
-        <div>
-          <strong>Address:</strong> {farmer.address ?? "-"}
-        </div>
-        <div>
-          <strong>City:</strong> {farmer.city ?? "-"}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function StatCard({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div className="bg-white p-4 rounded shadow flex flex-col">
-      <div className="text-xs text-gray-500">{label}</div>
-      <div className="text-2xl font-bold text-green-600">{value}</div>
+      <div className="text-3xl font-extrabold text-gray-800">{value}</div>
     </div>
   );
 }
@@ -142,7 +92,7 @@ export default function DashboardPage() {
 
         if (mounted) setUser(json.user ?? json);
       } catch (err) {
-        setError("Network error");
+        setError("Network error. Is the backend running?");
       } finally {
         if (mounted) setLoading(false);
       }
@@ -166,71 +116,166 @@ export default function DashboardPage() {
   }
 
   if (loading) return <Loading />;
-  if (error)
-    return (
-      <div className="p-8 max-w-5xl mx-auto">
-        <div className="text-red-600 mb-4">{error}</div>
-        <button
-          onClick={() => router.push("/signin")}
-          className="px-4 py-2 bg-green-600 text-white rounded"
-        >
-          Go to Sign In
-        </button>
-      </div>
-    );
 
-  if (!user)
+  if (error || !user)
     return (
-      <div className="p-8">
-        <div>No profile found. Please sign in.</div>
-        <button
-          onClick={() => router.push("/signin")}
-          className="mt-4 px-4 py-2 bg-green-600 text-white rounded"
-        >
-          Sign In
-        </button>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
+        <div className="max-w-md w-full bg-white p-8 rounded-3xl shadow-xl text-center">
+          <div className="text-4xl mb-4">⚠️</div>
+          <h2 className="text-xl font-bold text-gray-800 mb-2">
+            Authentication Issue
+          </h2>
+          <p className="text-gray-600 mb-6">
+            {error || "No profile found. Please sign in again."}
+          </p>
+          <button
+            onClick={() => router.push("/signin")}
+            className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-colors"
+          >
+            Return to Login
+          </button>
+        </div>
       </div>
     );
 
   return (
-    <div className="max-w-6xl mx-auto p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
-      <aside className="md:col-span-1">
-        <div className="bg-white p-4 rounded shadow">
-          <div className="text-sm text-gray-500 mb-3">Navigation</div>
-          <ul className="space-y-2 text-sm">
-            <li className="font-medium text-green-600">Dashboard</li>
-            <li className="text-gray-600">Products</li>
-            <li className="text-gray-600">Farmers</li>
-            <li className="text-gray-600">Orders</li>
-            <li className="text-gray-600">Settings</li>
-          </ul>
-        </div>
-        <div className="mt-4">
-          <ProfileCard user={user} />
-        </div>
-      </aside>
-
-      <main className="md:col-span-3">
-        <DashboardHeader user={user} onLogout={handleLogout} />
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-          <StatCard label="Your listings" value={0} />
-          <StatCard label="Orders" value={0} />
-          <StatCard label="Earnings" value={`$${0}`} />
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div>
-            <div className="bg-white shadow rounded p-6">
-              <h3 className="font-semibold mb-3">Recent Activity</h3>
-              <p className="text-sm text-gray-600">
-                No recent activity to show.
-              </p>
+    <div className="min-h-screen bg-[#f8fafc]">
+      {/* Top Navigation */}
+      <nav className="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16 items-center">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center text-white font-bold">
+                F
+              </div>
+              <span className="font-bold text-xl tracking-tight text-gray-900">
+                FarmDirect
+              </span>
+            </div>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={handleLogout}
+                className="text-sm font-medium text-gray-500 hover:text-red-600 transition-colors"
+              >
+                Logout
+              </button>
+              <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-bold border border-green-200">
+                {user.fullName[0]}
+              </div>
             </div>
           </div>
+        </div>
+      </nav>
 
-          <div>
-            <FarmerCard farmer={user.farmerProfile} />
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header Section */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-extrabold text-gray-900">
+            Hello, {user.fullName.split(" ")[0]}! 👋
+          </h1>
+          <p className="text-gray-500 mt-1">
+            Here is what's happening with your {user.role} account today.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Sidebar Area */}
+          <div className="lg:col-span-1 space-y-6">
+            <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">
+                Account
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-xs text-gray-400 block">Email</label>
+                  <span className="text-sm font-medium text-gray-700">
+                    {user.email}
+                  </span>
+                </div>
+                <div>
+                  <label className="text-xs text-gray-400 block">Status</label>
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 uppercase">
+                    {user.role}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {user.farmerProfile && (
+              <div className="bg-linear-to-br from-green-600 to-green-700 rounded-2xl p-6 text-white shadow-lg shadow-green-200">
+                <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                  <span>🚜</span> Farm Details
+                </h3>
+                <div className="space-y-3 opacity-90 text-sm">
+                  <p>
+                    <strong className="block opacity-70">Farm Name</strong>{" "}
+                    {user.farmerProfile.farmName || "Not set"}
+                  </p>
+                  <p>
+                    <strong className="block opacity-70">Location</strong>{" "}
+                    {user.farmerProfile.city}, {user.farmerProfile.address}
+                  </p>
+                </div>
+                <button className="mt-6 w-full py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-semibold transition-colors">
+                  Edit Farm Profile
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Main Content Area */}
+          <div className="lg:col-span-3 space-y-8">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <StatCard label="Listings" value={0} icon="📦" />
+              <StatCard label="Total Orders" value={0} icon="🛒" />
+              <StatCard label="Earnings" value="$0.00" icon="💰" />
+            </div>
+
+            {/* Bottom Section */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="font-bold text-gray-800 text-lg">
+                    Recent Activity
+                  </h3>
+                  <button className="text-xs font-bold text-green-600 hover:underline">
+                    View All
+                  </button>
+                </div>
+                <div className="flex flex-col items-center justify-center py-10 text-center">
+                  <div className="bg-gray-50 rounded-full h-16 w-16 flex items-center justify-center mb-4 text-2xl">
+                    🍃
+                  </div>
+                  <p className="text-gray-400 text-sm">
+                    No recent transactions or updates.
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                <h3 className="font-bold text-gray-800 text-lg mb-6">
+                  Quick Actions
+                </h3>
+                <div className="grid grid-cols-2 gap-4 text-center">
+                  <button className="p-4 rounded-xl border border-gray-100 hover:bg-green-50 hover:border-green-100 transition-all group">
+                    <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">
+                      ➕
+                    </div>
+                    <span className="text-xs font-semibold text-gray-600">
+                      Add Listing
+                    </span>
+                  </button>
+                  <button className="p-4 rounded-xl border border-gray-100 hover:bg-green-50 hover:border-green-100 transition-all group">
+                    <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">
+                      📱
+                    </div>
+                    <span className="text-xs font-semibold text-gray-600">
+                      Messages
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </main>
