@@ -5,18 +5,29 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getApiBase } from "./auth/api";
 
+interface User {
+  fullName?: string;
+  email?: string;
+  id?: string | number;
+}
+
+const PROFILE_TIMEOUT_MS = 8000;
+
 export default function Navigation() {
-  const [user, setUser] = useState<any | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [checking, setChecking] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
     let mounted = true;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), PROFILE_TIMEOUT_MS);
     (async () => {
       try {
         const base = getApiBase();
         const res = await fetch(`${base}/api/auth/profile`, {
           credentials: "include",
+          signal: controller.signal,
         });
         if (!mounted) return;
         if (res.ok) {
@@ -26,13 +37,16 @@ export default function Navigation() {
           setUser(null);
         }
       } catch (err) {
-        setUser(null);
+        if (mounted) setUser(null);
       } finally {
+        clearTimeout(timeout);
         if (mounted) setChecking(false);
       }
     })();
     return () => {
       mounted = false;
+      controller.abort();
+      clearTimeout(timeout);
     };
   }, []);
 
@@ -95,7 +109,7 @@ export default function Navigation() {
                 Logout
               </button>
               <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-bold border border-green-200">
-                {user.fullName ? user.fullName[0] : "U"}
+                {user.fullName?.trim()?.[0] ?? "U"}
               </div>
             </>
           ) : (
