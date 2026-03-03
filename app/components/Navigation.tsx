@@ -3,15 +3,13 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getApiBase } from "./auth/api";
+import { getApiBase, PROFILE_TIMEOUT_MS } from "./auth/api";
 
 interface User {
   fullName?: string;
   email?: string;
   id?: string | number;
 }
-
-const PROFILE_TIMEOUT_MS = 8000;
 
 export default function Navigation() {
   const [user, setUser] = useState<User | null>(null);
@@ -36,7 +34,7 @@ export default function Navigation() {
         } else {
           setUser(null);
         }
-      } catch (err) {
+      } catch {
         if (mounted) setUser(null);
       } finally {
         clearTimeout(timeout);

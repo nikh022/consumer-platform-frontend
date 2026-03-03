@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { getApiBase } from "../components/auth/api";
+import { getApiBase, PROFILE_TIMEOUT_MS } from "../components/auth/api";
 
 type UserProfile = {
   id: string;
@@ -20,8 +20,6 @@ type FormState = {
   newPassword: string;
   confirmPassword: string;
 };
-
-const PROFILE_TIMEOUT_MS = 8000;
 
 function formFromUser(u: UserProfile): FormState {
   return {
@@ -182,6 +180,8 @@ export default function ProfilePage() {
     }
 
     setSaving(true);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), PROFILE_TIMEOUT_MS);
     try {
       const base = getApiBase();
       const body: Record<string, string> = {
@@ -198,6 +198,7 @@ export default function ProfilePage() {
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify(body),
+        signal: controller.signal,
       });
 
       const json = await res.json().catch(() => ({}));
@@ -209,7 +210,9 @@ export default function ProfilePage() {
 
       if (res.status === 429) {
         const retryAfter = parseInt(res.headers.get("Retry-After") ?? "");
-        setRetrySeconds(isNaN(retryAfter) || retryAfter <= 0 ? 15 * 60 : retryAfter);
+        setRetrySeconds(
+          isNaN(retryAfter) || retryAfter <= 0 ? 15 * 60 : retryAfter,
+        );
         setForm((prev) => ({
           ...prev,
           currentPassword: "",
@@ -229,9 +232,14 @@ export default function ProfilePage() {
       setForm(formFromUser(updated));
       setSaveSuccess(true);
       setEditing(false);
-    } catch {
-      setSaveError("Network error. Please try again.");
+    } catch (err) {
+      setSaveError(
+        err instanceof Error && err.name === "AbortError"
+          ? "Request timed out. Please try again."
+          : "Network error. Please try again.",
+      );
     } finally {
+      clearTimeout(timeout);
       setSaving(false);
     }
   }
@@ -367,6 +375,7 @@ export default function ProfilePage() {
                   name="fullName"
                   type="text"
                   required
+                  autoComplete="name"
                   value={form.fullName}
                   onChange={handleChange}
                   className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-400 text-sm text-gray-800"
@@ -385,6 +394,7 @@ export default function ProfilePage() {
                   name="email"
                   type="email"
                   required
+                  autoComplete="email"
                   value={form.email}
                   onChange={handleChange}
                   className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-400 text-sm text-gray-800"
