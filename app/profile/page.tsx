@@ -102,7 +102,12 @@ export default function ProfilePage() {
           return;
         }
 
-        const json = await res.json();
+        let json;
+        try {
+          json = await res.json();
+        } catch {
+          json = {};
+        }
         if (!res.ok) {
           setFetchError(json?.message || "Failed to load profile.");
           return;
@@ -483,10 +488,10 @@ export default function ProfilePage() {
               </button>
               <button
                 type="submit"
-                disabled={saving || retrySeconds !== null}
+                disabled={saving}
                 className="px-8 py-2.5 bg-green-600 hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-bold rounded-xl shadow-lg shadow-green-200 transition-all active:scale-95"
               >
-                {saving ? "Saving..." : retrySeconds !== null ? `Locked (${formatCountdown(retrySeconds)})` : "Save Changes"}
+                {saving ? "Saving..." : "Save Changes"}
               </button>
             </div>
           </form>
