@@ -3,15 +3,13 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getApiBase } from "./auth/api";
+import { getApiBase, PROFILE_TIMEOUT_MS } from "./auth/api";
 
 interface User {
   fullName?: string;
   email?: string;
   id?: string | number;
 }
-
-const PROFILE_TIMEOUT_MS = 8000;
 
 export default function Navigation() {
   const [user, setUser] = useState<User | null>(null);
@@ -36,7 +34,7 @@ export default function Navigation() {
         } else {
           setUser(null);
         }
-      } catch (err) {
+      } catch {
         if (mounted) setUser(null);
       } finally {
         clearTimeout(timeout);
@@ -108,9 +106,18 @@ export default function Navigation() {
               >
                 Logout
               </button>
-              <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-bold border border-green-200">
-                {user.fullName?.trim()?.[0] ?? "U"}
-              </div>
+              <Link
+                href="/profile"
+                title="Edit profile"
+                aria-label={
+                  user.fullName
+                    ? `Edit profile for ${user.fullName}`
+                    : "Edit profile"
+                }
+                className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-bold border border-green-200 hover:ring-2 hover:ring-green-400 transition-all"
+              >
+                {user.fullName?.trim()?.[0]?.toUpperCase() ?? "U"}
+              </Link>
             </>
           ) : (
             !checking && (
