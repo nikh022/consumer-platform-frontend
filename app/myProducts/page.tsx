@@ -28,7 +28,6 @@ export default function MyProducts() {
     setLoading(true);
     try {
       const base = getApiBase();
-      console.log("Fetching products from API:", `${base}/api/product/my`);
       const res = await fetch(`${base}/api/product/my`, {
         method: "GET",
         credentials: "include",
