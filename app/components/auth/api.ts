@@ -5,7 +5,7 @@ export function getApiBase() {
   return `${window.location.protocol}//${window.location.hostname}:${port}`;
 }
 
-export async function postJSON(path: string, body: any) {
+export async function postJSON(path: string, body: Record<string, unknown>) {
   const base = getApiBase();
   const res = await fetch(
     `${base}${path.startsWith("/") ? path : `/${path}`}`,
@@ -17,7 +17,7 @@ export async function postJSON(path: string, body: any) {
     },
   );
 
-  let json: any = null;
+  let json: Record<string, unknown> | null = null;
   try {
     json = await res.json();
   } catch (e) {
