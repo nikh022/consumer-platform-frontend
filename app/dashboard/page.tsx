@@ -180,7 +180,7 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="ml-auto mt-4">
-          <Link href="/myProducts" className="px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-colors">
+          <Link href="/myproducts" className="px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-colors">
             My Products
           </Link>
         </div>
