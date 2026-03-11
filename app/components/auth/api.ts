@@ -1,3 +1,5 @@
+export const PROFILE_TIMEOUT_MS = 8000;
+
 export function getApiBase() {
   if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
   if (typeof window === "undefined") return "";
