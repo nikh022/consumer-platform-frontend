@@ -21,7 +21,7 @@ export async function postJSON(path: string, body: any) {
     },
   );
 
-  let json: any | null = null;
+  let json: any = null;
   try {
     json = await res.json();
   } catch (e) {
