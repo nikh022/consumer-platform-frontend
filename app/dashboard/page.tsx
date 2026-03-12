@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { getApiBase, type ContactPreference } from "../components/auth/api";
 
 // Types
@@ -235,13 +236,23 @@ export default function DashboardPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-extrabold text-gray-900">
-            Hello, {user.fullName.split(" ")[0]}! 👋
-          </h1>
-          <p className="text-gray-500 mt-1">
-            Here is what's happening with your {user.role} account today.
-          </p>
+        <div className="flex">
+          <div className="mb-8">
+            <h1 className="text-3xl font-extrabold text-gray-900">
+              Hello, {user.fullName.split(" ")[0]}! 👋
+            </h1>
+            <p className="text-gray-500 mt-1">
+              Here is what's happening with your {user.role} account today.
+            </p>
+          </div>
+          <div className="ml-auto mt-4">
+            <Link
+              href="/myProducts"
+              className="px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-colors"
+            >
+              My Products
+            </Link>
+          </div>
         </div>
 
         {/* Complete Farm Profile Banner */}
