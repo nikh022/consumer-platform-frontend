@@ -2,10 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { getApiBase, type ContactPreference } from "../components/auth/api";
 
 // Types
-type ContactPreference = "CALL" | "WHATSAPP" | "BOTH";
-
 type FarmerProfile = {
   id: string;
   farmName?: string | null;
@@ -21,14 +20,6 @@ type UserProfile = {
   createdAt?: string;
   farmerProfile?: FarmerProfile | null;
 };
-
-// Helper Functions
-function getApiBase() {
-  if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
-  if (typeof window === "undefined") return "";
-  const port = process.env.NEXT_PUBLIC_API_PORT || "4000";
-  return `${window.location.protocol}//${window.location.hostname}:${port}`;
-}
 
 function Loading() {
   return (
@@ -171,7 +162,7 @@ export default function DashboardPage() {
           district,
         }),
       });
-      const json = await res.json();
+      const json = await res.json().catch(() => ({}));
       if (!res.ok) {
         setProfileFormError(json?.message || "Failed to save farm profile");
         return;
@@ -181,7 +172,7 @@ export default function DashboardPage() {
       const profileRes = await fetch(`${base}/api/auth/profile`, {
         credentials: "include",
       });
-      const profileJson = await profileRes.json();
+      const profileJson = await profileRes.json().catch(() => ({}));
       if (profileRes.ok) setUser(profileJson.user ?? profileJson);
     } catch {
       setProfileFormError("Network error");
@@ -254,145 +245,151 @@ export default function DashboardPage() {
         </div>
 
         {/* Complete Farm Profile Banner */}
-        {user.role === "FARMER" && !user.farmerProfile && (
-          <div className="mb-8 border border-yellow-200 bg-yellow-50 rounded-2xl p-6">
-            <div className="flex items-start gap-3 mb-5">
-              <span className="text-2xl">⚠️</span>
-              <div>
-                <h2 className="font-bold text-yellow-900 text-lg">
-                  Complete your farm profile
-                </h2>
-                <p className="text-yellow-700 text-sm mt-0.5">
-                  Your account was created but the farm profile setup did not
-                  finish. Fill in the details below to start listing products.
-                </p>
-              </div>
-            </div>
-
-            {profileFormSuccess ? (
-              <p className="text-green-700 font-semibold text-sm">
-                Farm profile saved! The page will update shortly.
-              </p>
-            ) : (
-              <form
-                onSubmit={handleCompleteProfile}
-                className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-              >
-                {profileFormError && (
-                  <p className="sm:col-span-2 text-sm text-red-600">
-                    {profileFormError}
+        {user.role === "FARMER" &&
+          (!user.farmerProfile ||
+            !user.farmerProfile.farmName?.trim() ||
+            !user.farmerProfile.address?.trim() ||
+            !user.farmerProfile.city?.trim()) && (
+            <div className="mb-8 border border-yellow-200 bg-yellow-50 rounded-2xl p-6">
+              <div className="flex items-start gap-3 mb-5">
+                <span className="text-2xl">⚠️</span>
+                <div>
+                  <h2 className="font-bold text-yellow-900 text-lg">
+                    Complete your farm profile
+                  </h2>
+                  <p className="text-yellow-700 text-sm mt-0.5">
+                    Your account was created but the farm profile setup did not
+                    finish. Fill in the details below to start listing products.
                   </p>
-                )}
-
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
-                    Farm name *
-                  </label>
-                  <input
-                    value={farmName}
-                    onChange={(e) => setFarmName(e.target.value)}
-                    className="w-full border rounded-lg px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-yellow-300"
-                    placeholder="e.g. Green Valley Farm"
-                    required
-                  />
                 </div>
+              </div>
 
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
-                    Phone number *
-                  </label>
-                  <input
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    className="w-full border rounded-lg px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-yellow-300"
-                    placeholder="e.g. +91 98765 43210"
-                    required
-                  />
-                </div>
+              {profileFormSuccess ? (
+                <p className="text-green-700 font-semibold text-sm">
+                  Farm profile saved! The page will update shortly.
+                </p>
+              ) : (
+                <form
+                  onSubmit={handleCompleteProfile}
+                  className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+                >
+                  {profileFormError && (
+                    <p className="sm:col-span-2 text-sm text-red-600">
+                      {profileFormError}
+                    </p>
+                  )}
 
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
-                    Bio
-                  </label>
-                  <textarea
-                    value={bio}
-                    onChange={(e) => setBio(e.target.value)}
-                    className="w-full border rounded-lg px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-yellow-300 resize-none"
-                    rows={2}
-                    maxLength={500}
-                    placeholder="Tell consumers about your farm (optional)"
-                  />
-                </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      Farm name *
+                    </label>
+                    <input
+                      value={farmName}
+                      onChange={(e) => setFarmName(e.target.value)}
+                      className="w-full border rounded-lg px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-yellow-300"
+                      placeholder="e.g. Green Valley Farm"
+                      required
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
-                    Contact preference *
-                  </label>
-                  <select
-                    value={contactPreference}
-                    onChange={(e) =>
-                      setContactPreference(e.target.value as ContactPreference)
-                    }
-                    className="w-full border rounded-lg px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-yellow-300"
-                  >
-                    <option value="BOTH">Both Call &amp; WhatsApp</option>
-                    <option value="CALL">Call only</option>
-                    <option value="WHATSAPP">WhatsApp only</option>
-                  </select>
-                </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      Phone number *
+                    </label>
+                    <input
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      className="w-full border rounded-lg px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-yellow-300"
+                      placeholder="e.g. +91 98765 43210"
+                      required
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
-                    Address *
-                  </label>
-                  <input
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    className="w-full border rounded-lg px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-yellow-300"
-                    placeholder="Street / village / locality"
-                    required
-                  />
-                </div>
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      Bio
+                    </label>
+                    <textarea
+                      value={bio}
+                      onChange={(e) => setBio(e.target.value)}
+                      className="w-full border rounded-lg px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-yellow-300 resize-none"
+                      rows={2}
+                      maxLength={500}
+                      placeholder="Tell consumers about your farm (optional)"
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
-                    City *
-                  </label>
-                  <input
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    className="w-full border rounded-lg px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-yellow-300"
-                    placeholder="City"
-                    required
-                  />
-                </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      Contact preference *
+                    </label>
+                    <select
+                      value={contactPreference}
+                      onChange={(e) =>
+                        setContactPreference(
+                          e.target.value as ContactPreference,
+                        )
+                      }
+                      className="w-full border rounded-lg px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-yellow-300"
+                    >
+                      <option value="BOTH">Both Call &amp; WhatsApp</option>
+                      <option value="CALL">Call only</option>
+                      <option value="WHATSAPP">WhatsApp only</option>
+                    </select>
+                  </div>
 
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
-                    District *
-                  </label>
-                  <input
-                    value={district}
-                    onChange={(e) => setDistrict(e.target.value)}
-                    className="w-full border rounded-lg px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-yellow-300"
-                    placeholder="District"
-                    required
-                  />
-                </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      Address *
+                    </label>
+                    <input
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      className="w-full border rounded-lg px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-yellow-300"
+                      placeholder="Street / village / locality"
+                      required
+                    />
+                  </div>
 
-                <div className="sm:col-span-2">
-                  <button
-                    type="submit"
-                    disabled={profileFormLoading}
-                    className="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-lg text-sm transition-colors disabled:opacity-60"
-                  >
-                    {profileFormLoading ? "Saving..." : "Save Farm Profile"}
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-        )}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      City *
+                    </label>
+                    <input
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      className="w-full border rounded-lg px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-yellow-300"
+                      placeholder="City"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      District *
+                    </label>
+                    <input
+                      value={district}
+                      onChange={(e) => setDistrict(e.target.value)}
+                      className="w-full border rounded-lg px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-yellow-300"
+                      placeholder="District"
+                      required
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <button
+                      type="submit"
+                      disabled={profileFormLoading}
+                      className="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-lg text-sm transition-colors disabled:opacity-60"
+                    >
+                      {profileFormLoading ? "Saving..." : "Save Farm Profile"}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          )}
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar Area */}

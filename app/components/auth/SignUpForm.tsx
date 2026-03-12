@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
-type ContactPreference = "CALL" | "WHATSAPP" | "BOTH";
+import type { ContactPreference } from "./api";
 
 export default function SignUpForm() {
   // Base account fields
@@ -74,6 +73,7 @@ export default function SignUpForm() {
 
     setLoading(true);
     setError(null);
+    setSuccess(null);
 
     try {
       const { postJSON } = await import("./api");
