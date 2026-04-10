@@ -79,13 +79,18 @@ export default function Navigation() {
         </div>
 
         <div className="hidden md:flex items-center gap-8">
-          {["Home", "Products", "Farmers", "About"].map((item) => (
+          {[
+            { name: "Home", href: "/" },
+            { name: "Products", href: "/products" },
+            { name: "Farmers", href: "/farmers" },
+            { name: "About", href: "/about" },
+          ].map((item) => (
             <Link
-              key={item}
-              href="#"
+              key={item.name}
+              href={item.href}
               className="text-sm font-semibold text-gray-500 hover:text-green-600 dark:text-gray-400 dark:hover:text-green-400 transition-colors"
             >
-              {item}
+              {item.name}
             </Link>
           ))}
         </div>

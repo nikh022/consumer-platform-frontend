@@ -20,7 +20,7 @@ export default function Hero() {
             Find Farmers
           </button>
           <button className="w-full sm:w-auto px-10 py-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-bold rounded-2xl hover:bg-slate-50 transition-colors">
-            Sell Your Produce
+            Sell Your Product
           </button>
         </div>
       </div>
